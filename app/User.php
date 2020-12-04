@@ -102,16 +102,30 @@ class User extends Authenticatable
             return false;
         }
      }
-      /**
-     * 指定された $userIdのユーザをこのユーザがフォロー中であるか調べる。フォロー中ならtrueを返す。
-     *
-     * @param  int  $userId
-     * @return bool
-     */
+    /**
+    * 指定された $userIdのユーザをこのユーザがフォロー中であるか調べる。フォロー中ならtrueを返す。
+    *
+    * @param  int  $userId
+    * @return bool
+    */
+    
+    public function is_following($userId){
      
-     public function is_following($userId){
+    //フォロー中のユーザーの中に、$userIdのものが存在するか
+    return $this->followings()->where('follow_id',$userId)->exists();
+    }
+     
+    /**
+     * このユーザとフォロー中ユーザの投稿に絞り込む。
+     */
+     public function feed_microposts(){
+         //このユーザがフォロー中のユーザのidを取得して配列にする
+         $userIds = $this->followings()->pluck('users.id')->toArray();
          
-        //フォロー中のユーザーの中に、$userIdのものが存在するか
-        return $this->followings()->where('follow_id',$userId)->exists();
+         //このユーザのidもその列に追加
+         $userIds[] = $this-id;
+         
+         //それらのユーザが所有する投稿に絞り込む
+         return Micropost::whereIn('user_id',$userId);
      }
 }
