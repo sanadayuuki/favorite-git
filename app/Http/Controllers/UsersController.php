@@ -16,7 +16,7 @@ class UsersController extends Controller
         //ユーザー一覧ビューでそれを表示
         
         return view('users.index',[
-            'users => $users',
+            'users' => $users,
         ]);
     }
     
@@ -76,7 +76,7 @@ class UsersController extends Controller
         $followers = $user->followers()->paginate(10);
         
         //フォロワー一覧ビューでそれらを表示
-        return view('user.followers',[
+        return view('users.followers',[
             'user' => $user,
             'users' => $followers,
         ]);
