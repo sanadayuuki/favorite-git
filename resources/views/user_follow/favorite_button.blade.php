@@ -1,4 +1,4 @@
-
+@if (Auth::id() != $micropost->user_id)
     @if (Auth::user()->is_favorite($micropost->id))
         {{-- お気に入り登録を外すボタンのフォーム --}}
         {!! Form::open(['route' => ['favorites.unfavorite', $micropost->id], 'method' => 'delete']) !!}
@@ -10,3 +10,4 @@
             {!! Form::submit('favorite', ['class' => "btn btn-light btn-sm-2"]) !!}
         {!! Form::close() !!}
     @endif
+@endif
