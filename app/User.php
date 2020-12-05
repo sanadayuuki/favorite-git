@@ -140,7 +140,7 @@ class User extends Authenticatable
         // すでにお気に入り登録しているかの確認
         $exist = $this->is_favorite($micropostsId);
         //自分のツイートでないか確認
-        $its_me = $this->id == $micropostsId;
+        $its_me = $this->microposts()->where('id',$micropostsId)->exists();
         
         if($exist || $its_me){
             // すでにお気に入り登録していれば何もしない
@@ -164,7 +164,7 @@ class User extends Authenticatable
         // すでにお気に入り登録しているかの確認
         $exist = $this->is_favorite($micropostsId);
         //自分のツイートでないか確認
-        $its_me = $this->id == $micropostsId;
+        $its_me = $this->microposts()->where('id',$micropostsId)->exists();
          
         if($exist && !$its_me){
              //すでにお気に入り登録していればお気に入り登録を外す
