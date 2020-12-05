@@ -57,9 +57,15 @@ class User extends Authenticatable
     public function followers(){
         return $this->belongsToMany(User::class,'user_follow','follow_id','user_id')->withTimestamps();
     }
+    /**
+     * このユーザがお気に入り登録中のツイート。（ Userモデルとの関係を定義）
+     */
+    public function favorites(){
+        return $this->belongsToMany(Micropost::class,'favorites','user_id','micropost_id')->withTimestamps();
+    }
     
      public function loadRelationshipCounts(){
-         $this->loadCount(['microposts', 'followings', 'followers']);
+         $this->loadCount(['microposts', 'followings', 'followers','favorites']);
      }
     
     public function follow($userId){
@@ -128,4 +134,58 @@ class User extends Authenticatable
          //それらのユーザが所有する投稿に絞り込む
          return Micropost::whereIn('user_id',$userIds);
      }
+     
+         public function favorite($micropostsId){
+        
+        // すでにお気に入り登録しているかの確認
+        $exist = $this->is_favorite($micropostsId);
+        //自分のツイートでないか確認
+        $its_me = $this->id == $micropostsId;
+        
+        if($exist || $its_me){
+            // すでにお気に入り登録していれば何もしない
+            return false;
+        }else{
+            //お気に入り登録していなければお気に入り登録する
+            $this->favorites()->attach($micropostsId);
+            return true;
+        }
+    }
+    
+   /**
+     * $micropostsIdで指定されたツイートをお気に入り登録する。
+     *
+     * @param  int  $micropostsId
+     * @return bool
+     */
+     
+     public function unfavorite($micropostsId){
+         
+        // すでにお気に入り登録しているかの確認
+        $exist = $this->is_favorite($micropostsId);
+        //自分のツイートでないか確認
+        $its_me = $this->id == $micropostsId;
+         
+        if($exist && !$its_me){
+             //すでにお気に入り登録していればお気に入り登録を外す
+            $this->favorites()->detach($micropostsId);
+            return true;
+        }else{
+            //お気に入り登録されてなければ何もしない
+            return false;
+        }
+     }
+    /**
+    * 指定された $userIdのユーザをこのユーザがフォロー中であるか調べる。フォロー中ならtrueを返す。
+    *
+    * @param  int  $userId
+    * @return bool
+    */
+    
+    public function is_favorite($micropostsId){
+     
+    //お気に入り登録中のツイートの中に、$micropostsIdのものが存在するか
+    return $this->favorites()->where('micropost_id',$micropostsId)->exists();
+    }
+     
 }

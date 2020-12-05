@@ -11,7 +11,7 @@ class UsersController extends Controller
     public function index(){
         
         //ユーザーIDを逆順で取得
-        $users = User::orderBy('id','desc')->paginate(1);
+        $users = User::orderBy('id','desc')->paginate(10);
         
         //ユーザー一覧ビューでそれを表示
         
@@ -79,6 +79,28 @@ class UsersController extends Controller
         return view('users.followers',[
             'user' => $user,
             'users' => $followers,
+        ]);
+    }
+    /**
+     * ユーザのお気に入り一覧ページを表示するアクション。
+     *
+     * @param  $id  ユーザのid
+     * @return \Illuminate\Http\Response
+     */
+    
+    public function show_favorite($id){
+        $user = User::findOrFail($id);
+        
+        //関係するモデルの件数をロード
+        $user->loadRelationshipCounts();
+        
+        //ユーザのお気に入り一覧を取得
+        $favorite = $user->favorites()->paginate(10);
+        
+        //お気に入り一覧一覧ビューでそれらを表示
+        return view('users.favorites',[
+            'user' => $user,
+            'microposts' => $favorite,
         ]);
     }
 
